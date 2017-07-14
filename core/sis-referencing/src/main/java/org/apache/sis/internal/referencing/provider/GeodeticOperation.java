@@ -19,6 +19,7 @@ package org.apache.sis.internal.referencing.provider;
 import javax.xml.bind.annotation.XmlTransient;
 import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.referencing.operation.OperationMethod;
+import org.opengis.referencing.operation.SingleOperation;
 import org.opengis.referencing.operation.Transformation;
 
 
@@ -31,7 +32,7 @@ import org.opengis.referencing.operation.Transformation;
  *
  * @author  Martin Desruisseaux (Geomatys)
  * @since   0.7
- * @version 0.7
+ * @version 0.7-sis-364
  * @module
  */
 @XmlTransient
@@ -117,7 +118,7 @@ abstract class GeodeticOperation extends AbstractProvider {
      * @return Fixed to {@link Transformation}.
      */
     @Override
-    public final Class<Transformation> getOperationType() {
+    public Class<? extends SingleOperation> getOperationType() {
         return Transformation.class;
     }
 
