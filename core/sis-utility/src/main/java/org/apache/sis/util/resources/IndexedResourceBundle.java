@@ -166,7 +166,7 @@ public class IndexedResourceBundle extends ResourceBundle implements Localized {
      *
      * @return A handler for the constants declared in the inner {@code Keys} class.
      */
-    KeyConstants getKeyConstants() {
+    protected KeyConstants getKeyConstants() {
         Class<?> keysClass = KeyConstants.class;
         for (final Class<?> inner : getClass().getClasses()) {
             if ("Keys".equals(inner.getSimpleName())) {
@@ -718,7 +718,7 @@ public class IndexedResourceBundle extends ResourceBundle implements Localized {
      *
      * @since 0.4
      */
-    static Locale getLocale(final Map<?,?> properties) {
+    protected static Locale getLocale(final Map<?,?> properties) {
         if (properties != null) {
             final Object candidate = properties.get(LOCALE_KEY);
             if (candidate instanceof Locale) {

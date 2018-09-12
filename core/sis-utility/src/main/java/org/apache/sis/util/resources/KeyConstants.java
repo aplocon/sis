@@ -33,7 +33,7 @@ import org.apache.sis.util.CharSequences;
  * @version 0.4
  * @module
  */
-class KeyConstants {
+public class KeyConstants {
     /**
      * The class that defines key constants.
      */

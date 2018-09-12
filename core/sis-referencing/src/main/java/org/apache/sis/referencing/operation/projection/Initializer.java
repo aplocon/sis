@@ -295,7 +295,7 @@ final class Initializer {
      * @return Reciprocal squared of the radius of curvature of the ellipsoid
      *         perpendicular to the meridian at latitude φ.
      */
-    private DoubleDouble rν2(final double sinφ) {
+    final DoubleDouble rν2(final double sinφ) {
         if (DoubleDouble.DISABLED) {
             return verbatim(1 - eccentricitySquared.value * (sinφ*sinφ));
         }

@@ -38,8 +38,11 @@ import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.Projection;
 import org.apache.sis.internal.util.Constants;
 import org.apache.sis.measure.MeasurementRange;
+import org.apache.sis.referencing.AbstractIdentifiedObject;
+import org.apache.sis.referencing.IdentifiedObjects;
 import org.apache.sis.referencing.NamedIdentifier;
 import org.apache.sis.referencing.operation.projection.NormalizedProjection;
+import org.apache.sis.metadata.iso.ImmutableIdentifier;
 import org.apache.sis.metadata.iso.citation.Citations;
 import org.apache.sis.parameter.DefaultParameterDescriptor;
 import org.apache.sis.parameter.ParameterBuilder;
@@ -242,6 +245,60 @@ public abstract class MapProjection extends AbstractProvider {
             }
         }
         throw new NoSuchElementException();
+    }
+    
+    /**
+     * Copies name, aliases and identifiers of the given {@code template}, except the alias and identifiers of the
+     * given authority which are replaced by the alias and identifiers of the same authority in {@code replacement}.
+     *
+     * @param  template     the parameter from which to copy names and identifiers.
+     * @param  toRename     authority of the alias to rename.
+     * @param  replacement  the parameter from which to get the new name for the alias to rename.
+     * @param  builder      an initially clean builder where to add the names and identifiers.
+     * @return the given {@code builder}, for method call chaining.
+     *
+     * @since 0.8
+     */
+    static ParameterBuilder renameAlias(final ParameterDescriptor<Double> template, final Citation toRename,
+            final ParameterDescriptor<Double> replacement, final ParameterBuilder builder)
+    {
+        return copyAliases(template, toRename, sameNameAs(toRename, replacement),
+                IdentifiedObjects.getIdentifier(replacement, toRename), builder.addName(template.getName()));
+    }
+
+    /**
+     * Copies all aliases except the ones for the given authority. If the given replacement is non-null,
+     * then it will be used instead of the first occurrence of the omitted name.
+     *
+     * <p>This method does not copy the primary name. It is caller's responsibility to add it first.</p>
+     *
+     * @param  template     the parameter from which to copy the aliases.
+     * @param  exclude      the authority of the alias to omit. Can not be EPSG.
+     * @param  replacement  the alias to use instead of the omitted one, or {@code null} if none.
+     * @param  newCode      the identifier to use instead of the omitted one, or {@code null} if none.
+     * @param  builder      where to add the aliases.
+     * @return the given {@code builder}, for method call chaining.
+     */
+    private static ParameterBuilder copyAliases(final ParameterDescriptor<Double> template, final Citation exclude,
+            GenericName replacement, Identifier newCode, final ParameterBuilder builder)
+    {
+        for (GenericName alias : template.getAlias()) {
+            if (((Identifier) alias).getAuthority() == exclude) {
+                if (replacement == null) continue;
+                alias = replacement;
+                replacement = null;
+            }
+            builder.addName(alias);
+        }
+        for (ReferenceIdentifier id : template.getIdentifiers()) {
+            if (id.getAuthority() == exclude) {
+                if (newCode == null) continue;
+                id = new ImmutableIdentifier(newCode.getAuthority(), null, newCode.getCode());
+                newCode = null;
+            }
+            builder.addIdentifier(id);
+        }
+        return builder;
     }
 
     /**

@@ -1237,7 +1237,7 @@ public final class Errors extends IndexedResourceBundle {
      * Returns the handle for the {@code Keys} constants.
      */
     @Override
-    final KeyConstants getKeyConstants() {
+    protected KeyConstants getKeyConstants() {
         return Keys.INSTANCE;
     }
 
@@ -1358,8 +1358,8 @@ public final class Errors extends IndexedResourceBundle {
 
         International(short key)                 {super(key);}
         International(short key, Object args)    {super(key, args);}
-        @Override KeyConstants getKeyConstants() {return Keys.INSTANCE;}
-        @Override IndexedResourceBundle getBundle(final Locale locale) {
+        @Override protected KeyConstants getKeyConstants() {return Keys.INSTANCE;}
+        @Override protected IndexedResourceBundle getBundle(final Locale locale) {
             return getResources(locale);
         }
     }
