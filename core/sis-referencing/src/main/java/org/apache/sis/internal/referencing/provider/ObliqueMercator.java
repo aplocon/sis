@@ -84,7 +84,7 @@ public class ObliqueMercator extends AbstractMercator {
     /**
      * The group of all parameters expected by this coordinate operation.
      */
-    private static final ParameterDescriptorGroup PARAMETERS;
+    static final ParameterDescriptorGroup PARAMETERS_A;
     static {
         final ParameterBuilder builder = builder();
 
@@ -112,6 +112,7 @@ public class ObliqueMercator extends AbstractMercator {
 
         RECTIFIED_GRID_ANGLE = builder
                 .addIdentifier("8814")
+                .addIdentifier(Citations.GEOTIFF, "3096")
                 .addName("Angle from Rectified to Skew Grid")
                 .addName(Citations.OGC,     "rectified_grid_angle")
                 .addName(Citations.ESRI,    "XY_Plane_Rotation")
@@ -126,7 +127,7 @@ public class ObliqueMercator extends AbstractMercator {
                 .rename    (Citations.GEOTIFF, "ScaleAtCenter")
                 .rename    (Citations.NETCDF));                                 // Remove the netCDF name.
 
-        PARAMETERS = builder
+        PARAMETERS_A = builder
                 .addIdentifier(IDENTIFIER_A)
                 .addName("Hotine Oblique Mercator (variant A)")                 // Starting from EPSG version 7.6
                 .addName("Hotine Oblique Mercator")                             // Prior to EPSG version 7.6
@@ -137,6 +138,7 @@ public class ObliqueMercator extends AbstractMercator {
                 .addName      (Citations.S57,     "HOM")
                 .addIdentifier(Citations.S57,     "5")
                 .addName      (Citations.GEOTIFF, "CT_ObliqueMercator_Hotine")
+                .addIdentifier(Citations.GEOTIFF, "3")
                 .createGroupForMapProjection(
                         LATITUDE_OF_CENTRE,
                         LONGITUDE_OF_CENTRE,
@@ -151,7 +153,7 @@ public class ObliqueMercator extends AbstractMercator {
      * Constructs a new provider.
      */
     public ObliqueMercator() {
-        super(PARAMETERS);
+        super(PARAMETERS_A);
     }
 
     /**

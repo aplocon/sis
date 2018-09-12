@@ -40,6 +40,7 @@ import static org.apache.sis.referencing.IdentifiedObjects.isHeuristicMatchForNa
 
 // Branch-dependent imports
 import org.apache.sis.internal.jdk8.JDK8;
+import org.apache.sis.internal.referencing.Resources;
 
 
 /**
@@ -482,17 +483,17 @@ public abstract class Parameters implements ParameterValueGroup, Cloneable {
     public <T> T getValue(final ParameterDescriptor<T> parameter) throws ParameterNotFoundException {
         final ParameterValue<?> p = getParameter(parameter);
         if (p != null) {
-            final Object value;
             final Class<T> type = parameter.getValueClass();
             final Unit<?>  unit = parameter.getUnit();
-            if (unit == null) {
-                value = p.getValue();
-            } else if (type.isArray()) {
-                value = p.doubleValueList(unit);
-            } else {
-                value = p.doubleValue(unit);
-            }
-            if (value != null) {
+            Object value = p.getValue();
+            if (value != null) {                // Tested first for avoiding IllegalStateException in call to doubleValue().
+                if (unit != null) {
+                    if (type.isArray()) {
+                        value = p.doubleValueList(unit);
+                    } else {
+                        value = p.doubleValue(unit);
+                    }
+                }
                 return ObjectConverters.convert(value, type);
             }
         }
@@ -501,26 +502,46 @@ public abstract class Parameters implements ParameterValueGroup, Cloneable {
 
     /**
      * Returns the value of the parameter identified by the given descriptor, or throws an exception if none.
-     * The default implementation invokes {@link #getValue(ParameterDescriptor)} and verifies that the returned
-     * value is non-null.
+     * The default implementation performs the same work than {@link #getValue(ParameterDescriptor)} and verifies
+     * that the returned value is non-null.
      *
-     * @param  <T> The type of the parameter value.
-     * @param  parameter The name or alias of the parameter to look for, together with the desired type and unit of value.
-     * @return The requested parameter value if it exists, or the {@linkplain DefaultParameterDescriptor#getDefaultValue()
+     * @param  <T>        the type of the parameter value.
+     * @param  parameter  the name or alias of the parameter to look for, together with the desired type and unit of value.
+     * @return the requested parameter value if it exists, or the {@linkplain DefaultParameterDescriptor#getDefaultValue()
      *         default value} otherwise provided that it is not {@code null}.
      * @throws ParameterNotFoundException if the given {@code parameter} name or alias is not legal for this group.
      * @throws IllegalStateException if the value is not defined and there is no default value.
      *
+     * @see #getValue(ParameterDescriptor)
+     * @see #getOrCreate(ParameterDescriptor)
+     *
      * @since 0.7
      */
     public <T> T getMandatoryValue(final ParameterDescriptor<T> parameter) throws ParameterNotFoundException {
-        final T value = getValue(parameter);
-        if (value != null) {
-            return value;
-        } else {
-            throw new IllegalStateException(Errors.format(Errors.Keys.MissingValueForParameter_1,
-                    Verifier.getDisplayName(parameter)));
+        final ParameterValue<?> p = getParameter(parameter);
+        if (p != null) {
+            final Class<T> type = parameter.getValueClass();
+            final Unit<?>  unit = parameter.getUnit();
+            final Object value;
+            if (unit == null) {
+                value = p.getValue();
+            } else if (type.isArray()) {
+                value = p.doubleValueList(unit);
+            } else {
+                value = p.doubleValue(unit);
+            }
+            final T result;
+            if (value != null) {
+                result = ObjectConverters.convert(value, type);
+            } else {
+                result = parameter.getDefaultValue();
+            }
+            if (result != null) {
+                return result;
+            }
         }
+        throw new IllegalStateException(Resources.format(Resources.Keys.MissingValueForParameter_1,
+                Verifier.getDisplayName(parameter)));
     }
 
     /**
