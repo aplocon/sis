@@ -144,17 +144,6 @@ Implementations of Coordinate Reference Systems (CRS),
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-     <dependency>
-	    <groupId>org.apache.sis.non-free</groupId>
-	    <artifactId>sis-epsg</artifactId>
-	    <version>0.7</version>
-	    <exclusions>
-	        <exclusion>
-	            <groupId>org.apache.sis.core</groupId>
-	  			<artifactId>sis-referencing</artifactId>
-	        </exclusion>
-      </exclusions> 
-	  </dependency>
   </dependencies>
-  
+
 </project>
