@@ -32,8 +32,8 @@ import static org.apache.sis.test.Assert.*;
  * Test the {@link SexagesimalConverter} class.
  *
  * @author  Martin Desruisseaux (Geomatys)
+ * @version 1.0
  * @since   0.3
- * @version 0.6
  * @module
  */
 public final strictfp class SexagesimalConverterTest extends TestCase {
@@ -94,9 +94,19 @@ public final strictfp class SexagesimalConverterTest extends TestCase {
         checkConversion(44.505590277777777, DEGREE_ANGLE, 443020.125, DMS_SCALED);
     }
 
+	/**
+     * Tests the fix for rounding error in conversion of 46°57'8.66".
+     * This fix is necessary for avoiding a 4 cm error with Apache SIS
+     * construction of EPSG:2056 projected CRS.
+     */
+    @Test
+    public void testRoundingErrorFix() {
+        final UnitConverter c = DMS.getConverterTo(DEGREE_ANGLE);
+        assertEquals(46.95240555555556, c.convert(46.570866), STRICT);
+    }
+	
     /**
-     * Tests {@link PatchedUnitFormat#toString(Unit)}.
-     * Tested here because it can be tested only after {@link SexagesimalConverter} initialization.
+     * Verifies the unit symbols.
      */
     @Test
     public void testPatchedUnitFormat() {
