@@ -30,21 +30,20 @@ import static org.apache.sis.math.MathFunctions.truncate;
 
 
 /**
- * A converter from fractional degrees to sexagesimal degrees. Sexagesimal degrees are pseudo-unit
+ * A converter from decimal degrees to sexagesimal degrees. Sexagesimal degrees are pseudo-unit
  * in the <cite>sign - degrees - decimal point - minutes (two digits) - integer seconds (two digits) -
  * fraction of seconds (any precision)</cite> format.
  *
- * <p>When possible, Apache SIS always handles angles in radians, decimal degrees or any other
- * proportional units. Sexagesimal angles are considered a string representation issue (handled
- * by {@link AngleFormat}) rather than a unit issue. Unfortunately, this pseudo-unit is extensively
- * used in the EPSG database, so we have to support it.</p>
+ * <p>When possible, Apache SIS always handles angles in radians, decimal degrees or any other proportional units.
+ * Sexagesimal angles are considered a string representation issue (handled by {@link AngleFormat}) rather than a
+ * unit issue. Unfortunately, this pseudo-unit is extensively used in the EPSG database, so we have to support it.</p>
  *
  * <div class="section">Immutability and thread safety</div>
  * This class and all inner classes are immutable, and thus inherently thread-safe.
  *
  * @author  Martin Desruisseaux (IRD, Geomatys)
+ * @version 1.0
  * @since   0.3
- * @version 0.6
  * @module
  */
 class SexagesimalConverter extends UnitConverter { // Intentionally not final.
@@ -233,6 +232,22 @@ class SexagesimalConverter extends UnitConverter { // Intentionally not final.
         }
 
         /**
+         * After calculation of the remaining seconds or minutes, trims the rounding errors presumably
+         * caused by rounding errors in floating point arithmetic. This is required for avoiding the
+         * following conversion issue:
+         *
+         * <ol>
+         *   <li>Sexagesimal value: 46.570866 (from 46°57'8.66"N in EPSG:2056 projected CRS)</li>
+         *   <li>value * 10000 = 465708.66000000003</li>
+         *   <li>deg = 46, min = 57, deg = 8.660000000032596</li>
+         * </ol>
+         */
+        private static double fixRoundingError(final double remainder) {
+            final double c = Math.rint(remainder * 1E+6) / 1E+6;
+            return (Math.abs(remainder - c) < 1E-9) ? c : remainder;
+        }
+
+        /**
          * Performs a conversion from sexagesimal degrees to fractional degrees.
          *
          * @throws IllegalArgumentException If the given angle can not be converted.
@@ -244,11 +259,13 @@ class SexagesimalConverter extends UnitConverter { // Intentionally not final.
                 sec = angle * divider;
                 deg = truncate(sec/10000); sec -= 10000*deg;
                 min = truncate(sec/  100); sec -=   100*min;
+                sec = fixRoundingError(sec);
             } else {
                 sec = 0;
                 min = angle * divider;
                 deg = truncate(min / 100);
                 min -= deg * 100;
+                min = fixRoundingError(min);
             }
             if (min <= -60 || min >= 60) {  // Do not enter for NaN
                 if (Math.abs(Math.abs(min) - 100) <= (EPS * 100)) {
