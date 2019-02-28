@@ -491,6 +491,19 @@ Apache SIS is a free software, Java language library for developing geospatial a
        ============================================================== -->
   <build>
     <plugins>
+    
+	 <plugin>
+	    <groupId>org.honton.chas</groupId>
+	    <artifactId>exists-maven-plugin</artifactId>
+	    <version>0.0.6</version>
+	    <executions>
+	      <execution>
+	        <goals>
+	          <goal>remote</goal>
+	        </goals>
+	      </execution>
+	    </executions>
+	  </plugin>
 
       <!-- Compile -->
       <plugin>
