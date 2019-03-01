@@ -504,8 +504,7 @@ Apache SIS is a free software, Java language library for developing geospatial a
 	      </execution>
 	    </executions>
 	    <configuration>
-	    	<repository>${deploymentRepositoryUrl}</repository>
-	    	<serverId>${deploymentRepositoryId}</serverId>
+	    	<repository>${altDeploymentRepository.url}</repository>
 	    </configuration>
 	  </plugin>
 
